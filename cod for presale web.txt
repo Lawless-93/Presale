@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MAD Frogo Token Pre-sale</title>
+    <script src="https://cdn.jsdelivr.net/npm/web3/dist/web3.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f7f9fc;
+            color: #333;
+            text-align: center;
+            padding: 20px;
+        }
+        h1 {
+            color: #007bff;
+        }
+        .button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .button:hover {
+            background-color: #0056b3;
+        }
+        input {
+            padding: 10px;
+            margin: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>MAD Frogo Token Pre-sale</h1>
+    <p>Welcome to the official pre-sale for <b>MAD Frogo (MADF)</b>!</p>
+    <div id="wallet">
+        <button class="button" onclick="connectWallet()">Connect Wallet</button>
+    </div>
+    <div id="presale" style="display:none;">
+        <p><b>Token Price:</b> 1 MADF = 0.0001 ETH</p>
+        <p><b>Pre-sale Progress:</b> <span id="progress">0</span> / 500,000,000 MADF</p>
+        <input type="number" id="amount" placeholder="Enter amount in MADF">
+        <button class="button" onclick="buyTokens()">Buy Tokens</button>
+    </div>
+    <script>
+        let web3;
+        let account;
+        const tokenAddress = "YOUR_TOKEN_CONTRACT_ADDRESS_HERE";
+        const developerAddress = "0x19758757070aD6Ce48750bd34b5478e67594909C";
+        const tokenPrice = 0.0001; // 1 MADF = 0.0001 ETH
+
+        async function connectWallet() {
+            if (window.ethereum) {
+                web3 = new Web3(window.ethereum);
+                await window.ethereum.request({ method: "eth_requestAccounts" });
+                const accounts = await web3.eth.getAccounts();
+                account = accounts[0];
+                document.getElementById("wallet").innerHTML = `<p>Wallet Connected: ${account}</p>`;
+                document.getElementById("presale").style.display = "block";
+            } else {
+                alert("MetaMask is not installed. Please install it to use this site.");
+            }
+        }
+
+        async function buyTokens() {
+            const amountInMADF = document.getElementById("amount").value;
+            if (!amountInMADF || amountInMADF <= 0) {
+                alert("Enter a valid amount.");
+                return;
+            }
+
+            const amountInETH = amountInMADF * tokenPrice;
+            const transaction = {
+                from: account,
+                to: developerAddress,
+                value: web3.utils.toWei(amountInETH.toString(), "ether")
+            };
+
+            try {
+                await web3.eth.sendTransaction(transaction);
+                alert(`Successfully purchased ${amountInMADF} MADF tokens!`);
+                updateProgress(amountInMADF);
+            } catch (error) {
+                alert("Transaction failed. Please try again.");
+            }
+        }
+
+        function updateProgress(purchasedAmount) {
+            const progressElement = document.getElementById("progress");
+            let currentProgress = parseInt(progressElement.innerText);
+            currentProgress += parseInt(purchasedAmount);
+            progressElement.innerText = currentProgress;
+        }
+    </script>
+</body>
+</html>
